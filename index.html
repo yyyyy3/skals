@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>我的網站</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    #seaweed-canvas {
+      z-index: 1;
+      pointer-events: none;
+      display: none;
+    }
+
+    #star-canvas {
+      z-index: 1;
+    }
+
+    #home {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 10;
+    }
+
+    #home h1 {
+      font-size: 48px;
+      margin-bottom: 30px;
+    }
+
+    #enter-btn {
+      padding: 15px 30px;
+      font-size: 20px;
+      background-color: #ffd700;
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #main-content {
+      display: none;
+    }
+
+    iframe {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 80%;
+      height: 80%;
+      transform: translate(-50%, -50%);
+      border: none;
+      z-index: 6;
+      display: none;
+    }
+
+    #canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+    }
+
+    #content {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px;
+      z-index: 5;
+    }
+
+    .box {
+      width: 120px;
+      height: 50px;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 10px;
+      background-color: blue;
+    }
+
+    #work-menu {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 7;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    #work-menu .box {
+      margin-bottom: 10px;
+    }
+
+    #intro-text, #quiz-container, #video-player {
+      z-index: 7;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+
+    #intro-text {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+    }
+
+    #quiz-container {
+      width: 60%;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .character {
+      width: 50px;
+      height: 50px;
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      display: none;
+      animation: bounce 1s infinite alternate ease-in-out;
+      z-index: 9999;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-20px); }
+    }
+  </style>
+</head>
+<body>
+  <div id="home">
+    <h1>歡迎來到我的網站</h1>
+    <button id="enter-btn">進入網站</button>
+  </div>
+
+  <canvas id="seaweed-canvas"></canvas>
+  <canvas id="star-canvas"></canvas>
+
+  <div id="main-content">
+    <div id="canvas-container"></div>
+
+    <iframe id="info-frame"></iframe>
+    <iframe id="video-player" src="https://drive.google.com/file/d/1N9PQwNwBLEwVYSOXVGO3XDwgwf_j6m4v/preview" allow="autoplay"></iframe>
+    <div id="intro-text">你好，我是鍾依縈，我喜歡畫畫 嗨～歡迎來到我的個人網頁！  
+        我是個喜歡創作、熱愛嘗試新東西的人。從畫畫
+        我特別喜歡把「感覺」變成「畫面」：像是這個星空背景、會動的海草，還有那些會跟滑鼠互動的小圓圈，這些不只是裝飾，它們都藏著我的小巧思和實驗精神。  
+        這個網頁就像是我數位世界的小房間，裡面放了我喜歡的東西──有我做的動畫</div>
+
+    <div id="quiz-container">
+      <h2>測驗卷</h2>
+      <div class="question">
+        <p>1. 5 + 3 = ?</p>
+        <label><input type="radio" name="q1" value="6"> 6</label><br>
+        <label><input type="radio" name="q1" value="8"> 8</label><br>
+        <label><input type="radio" name="q1" value="10"> 10</label>
+      </div>
+      <div class="question">
+        <p>2. 12 - 7 = ?</p>
+        <label><input type="radio" name="q2" value="4"> 4</label><br>
+        <label><input type="radio" name="q2" value="5"> 5</label><br>
+        <label><input type="radio" name="q2" value="6"> 6</label>
+      </div>
+      <div class="question">
+        <p>3. 6 × 4 = ?</p>
+        <label><input type="radio" name="q3" value="20"> 20</label><br>
+        <label><input type="radio" name="q3" value="24"> 24</label><br>
+        <label><input type="radio" name="q3" value="28"> 28</label>
+      </div>
+      <button onclick="submitQuiz()">提交答案</button>
+    </div>
+
+    <div id="content">
+      <div class="box" onclick="showWorkMenu()">作品集</div>
+      <div class="box" onclick="showQuiz()">測驗卷</div>
+      <div class="box" onclick="showIntro()">自我介紹</div>
+      <div class="box" onclick="showVideo()">教學影片</div>
+    </div>
+
+    <div id="work-menu">
+      <div class="box" onclick="showProject1()">作品集1</div>
+      <div class="box" onclick="showWebsite('http://www.et.tku.edu.tw')">作品集2</div>
+      <div class="box" onclick="showWebsite('https://hudson0811.github.io/20250303/')">作品集3</div>
+      <div class="box" onclick="showWebsite('https://hackmd.io/@NHV8Fba9QxOit5ByvW7rfw/rJZpvsfC1l')">hackmd</div>
+      <button onclick="hideWorkMenu()">關閉</button>
+    </div>
+
+    <img src="8.png" class="character" id="character" alt="Character">
+  </div>
+
+  <script>
+    document.getElementById("enter-btn").addEventListener("click", () => {
+      document.getElementById("home").style.display = "none";
+      document.getElementById("main-content").style.display = "block";
+    });
+
+    function showWorkMenu() {
+      hideAll();
+      document.getElementById('work-menu').style.display = 'block';
+    }
+
+    function hideWorkMenu() {
+      document.getElementById('work-menu').style.display = 'none';
+    }
+
+    let seaweedAnimationId = null;
+
+    function showWebsite(url) {
+      hideAll();
+      const iframe = document.getElementById('info-frame');
+      iframe.src = url;
+      iframe.style.display = 'block';
+
+      // 如果是作品集2網址，啟用海草動畫
+      if (url.includes('et.tku.edu.tw')) {
+        document.getElementById('seaweed-canvas').style.display = 'block';
+        startSeaweedAnimation();
+      }
+    }
+
+    function showIntro() {
+      hideAll();
+      document.getElementById('intro-text').style.display = 'block';
+    }
+
+    function showQuiz() {
+      hideAll();
+      document.getElementById('quiz-container').style.display = 'block';
+    }
+
+    function showVideo() {
+      hideAll();
+      document.getElementById('video-player').style.display = 'block';
+    }
+
+    function hideAll() {
+      document.getElementById('work-menu').style.display = 'none';
+      document.getElementById('info-frame').style.display = 'none';
+      document.getElementById('video-player').style.display = 'none';
+      document.getElementById('intro-text').style.display = 'none';
+      document.getElementById('quiz-container').style.display = 'none';
+      document.getElementById('character').style.display = 'none';
+
+      const oldCanvas = document.getElementById('project1-canvas');
+      if (oldCanvas) oldCanvas.remove();
+
+      // 關閉海草動畫
+      document.getElementById('seaweed-canvas').style.display = 'none';
+      cancelAnimationFrame(seaweedAnimationId);
+    }
+
+    function submitQuiz() {
+      const answers = { q1: "8", q2: "5", q3: "24" };
+      let correct = 0;
+      for (const [key, value] of Object.entries(answers)) {
+        const selected = document.querySelector(`input[name="${key}"]:checked`);
+        if (selected && selected.value === value) correct++;
+      }
+      alert(`你答對了 ${correct} 題！`);
+    }
+
+    // 星星動畫
+    const starCanvas = document.getElementById('star-canvas');
+    const starCtx = starCanvas.getContext('2d');
+    let stars = [];
+
+    function resizeCanvas() {
+      starCanvas.width = window.innerWidth;
+      starCanvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    for (let i = 0; i < 100; i++) {
+      stars.push({
+        x: Math.random() * starCanvas.width,
+        y: Math.random() * starCanvas.height,
+        size: Math.random() * 3 + 1,
+        angle: Math.random() * 2 * Math.PI,
+        speed: Math.random() * 0.05 + 0.01
+      });
+    }
+
+    function drawStar(x, y, size, angle) {
+      starCtx.save();
+      starCtx.translate(x, y);
+      starCtx.rotate(angle);
+      starCtx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        starCtx.lineTo(Math.cos((i * 2 * Math.PI) / 5) * size, Math.sin((i * 2 * Math.PI) / 5) * size);
+      }
+      starCtx.closePath();
+      starCtx.fillStyle = "#ffd700";
+      starCtx.fill();
+      starCtx.restore();
+    }
+
+    function animateStars() {
+      starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+      for (let star of stars) {
+        star.angle += star.speed;
+        drawStar(star.x, star.y, star.size, star.angle);
+      }
+      requestAnimationFrame(animateStars);
+    }
+
+    animateStars();
+
+    // 泡泡動畫：作品集1
+    function showProject1() {
+      hideAll();
+
+      if (document.getElementById('project1-canvas')) return;
+
+      const canvas = document.createElement('canvas');
+      canvas.id = 'project1-canvas';
+      canvas.style.position = 'absolute';
+      canvas.style.top = '0';
+      canvas.style.left = '0';
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.zIndex = '2';
+      document.body.appendChild(canvas);
+
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const ctx = canvas.getContext('2d');
+      const circles = [];
+
+      for (let i = 0; i < 100; i++) {
+        circles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 30 + 10,
+          color: `hsl(${Math.random() * 360}, 100%, 70%)`,
+        });
+      }
+
+      let mouseX = 0;
+      let mouseY = 0;
+
+      canvas.addEventListener('mousemove', (event) => {
+        mouseX = event.clientX;
+        mouseY = event.clientY;
+      });
+
+      function drawCircles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const circle of circles) {
+          const dx = circle.x - mouseX;
+          const dy = circle.y - mouseY;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const maxDistance = 200;
+          const newSize = Math.max(10, circle.size - (distance / maxDistance) * circle.size);
+
+          ctx.beginPath();
+          ctx.arc(circle.x, circle.y, newSize, 0, Math.PI * 2);
+          ctx.fillStyle = circle.color;
+          ctx.fill();
+          ctx.closePath();
+        }
+        requestAnimationFrame(drawCircles);
+      }
+
+      drawCircles();
+    }
+
+    // 海草動畫
+    const seaweedCanvas = document.getElementById('seaweed-canvas');
+    const seaweedCtx = seaweedCanvas.getContext('2d');
+
+    function resizeSeaweedCanvas() {
+      seaweedCanvas.width = window.innerWidth;
+      seaweedCanvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resizeSeaweedCanvas);
+    resizeSeaweedCanvas();
+
+    const seaweeds = [];
+    const seaweedCount = 30;
+    for (let i = 0; i < seaweedCount; i++) {
+      seaweeds.push({
+        x: (i / seaweedCount) * seaweedCanvas.width,
+        height: 150 + Math.random() * 100,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.02 + Math.random() * 0.01
+      });
+    }
+
+    function drawSeaweed() {
+      seaweedCtx.clearRect(0, 0, seaweedCanvas.width, seaweedCanvas.height);
+      seaweedCtx.strokeStyle = 'rgba(0, 255, 128, 0.6)';
+      seaweedCtx.lineWidth = 4;
+      seaweedCtx.lineCap = 'round';
+
+      seaweeds.forEach(seaweed => {
+        seaweed.phase += seaweed.speed;
+        const sway = Math.sin(seaweed.phase) * 20;
+        seaweedCtx.beginPath();
+        seaweedCtx.moveTo(seaweed.x, seaweedCanvas.height);
+        seaweedCtx.bezierCurveTo(
+          seaweed.x + sway, seaweedCanvas.height - seaweed.height / 3,
+          seaweed.x - sway, seaweedCanvas.height - (2 * seaweed.height) / 3,
+          seaweed.x, seaweedCanvas.height - seaweed.height
+        );
+        seaweedCtx.stroke();
+      });
+
+      seaweedAnimationId = requestAnimationFrame(drawSeaweed);
+    }
+
+    function startSeaweedAnimation() {
+      cancelAnimationFrame(seaweedAnimationId);
+      drawSeaweed();
+    }
+  </script>
+</body>
+</html> 
